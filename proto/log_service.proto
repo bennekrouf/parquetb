@@ -1,0 +1,43 @@
+
+syntax = "proto3";
+
+package logservice;
+
+import "google/protobuf/timestamp.proto";
+
+// Define the structure of a log entry
+message LogEntry {
+    google.protobuf.Timestamp datetime = 1;
+    string tenant_name = 2;
+    string item_id = 3;
+    string status = 4;
+    double qty = 5;
+    map<string, string> metadata = 6;
+}
+
+// Response after receiving logs
+message LogResponse {
+    string message = 1;
+    bool success = 2;
+}
+
+// Request for reading logs by tenant and date range
+message ReadLogsRequest {
+    string tenant_name = 1;
+    google.protobuf.Timestamp from = 2;
+    google.protobuf.Timestamp to = 3;
+}
+
+// Response stream of LogEntries
+message ReadLogsResponse {
+    repeated LogEntry logs = 1;
+}
+
+// LogService with streaming logs and reading logs by tenant and date range
+service LogService {
+    // Stream log entries to the server
+    rpc StreamLogs (stream LogEntry) returns (LogResponse);
+
+    // Read logs by tenant name and date range
+    rpc ReadLogs (ReadLogsRequest) returns (stream LogEntry);
+}

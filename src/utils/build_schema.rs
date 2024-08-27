@@ -1,6 +1,6 @@
+
 use arrow::datatypes::{DataType, Field, Schema, TimeUnit};
 use serde_json::Value;
-use std::sync::Arc;
 
 use crate::utils::infer_metadata_schema::infer_metadata_schema;
 
@@ -9,12 +9,12 @@ pub fn build_schema(log_entry: &Value) -> Schema {
     let mut fields = vec![
         Field::new(
             "datetime",
-            DataType::Timestamp(TimeUnit::Nanosecond, Some(Arc::from("UTC"))),
+            DataType::Timestamp(TimeUnit::Nanosecond, None),
             false,
         ),
         Field::new(
             "minute",
-            DataType::Timestamp(TimeUnit::Nanosecond, Some(Arc::from("UTC"))),
+            DataType::Timestamp(TimeUnit::Nanosecond, None),
             false,
         ),
         Field::new("tenant_name", DataType::Utf8, false),
