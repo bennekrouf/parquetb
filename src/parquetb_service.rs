@@ -16,6 +16,7 @@ use crate::client::send_log::send_log;
 use serde_json::json;
 // use arrow::datatypes::Schema;
 use std::error::Error;
+use tracing::{info, error};
 
 #[derive(Debug, Default)]
 pub struct MyParquetbService;
@@ -35,7 +36,7 @@ impl ParquetbService for MyParquetbService {
                 Ok(entry) => {
                     // Convert LogEntry to serde_json::Value for processing
                     let log_value = json!({
-                        "datetime": entry.datetime,
+                        // "datetime": entry.datetime,
                         "tenant_name": entry.tenant_name,
                         "item_id": entry.item_id,
                         "status": entry.status,
@@ -73,28 +74,55 @@ impl ParquetbService for MyParquetbService {
 }
 
 async fn process_logs(log_entries: &[serde_json::Value]) -> Result<String, Box<dyn Error>> {
+    info!("Starting log processing.");
+
     // Use the first log entry to build the schema and get tenant info
     let first_log = &log_entries[0];
-    let tenant_name = first_log["tenant_name"].as_str().unwrap();
-    let datetime_str = first_log["datetime"].as_str().unwrap();
-    let datetime = datetime_str.parse::<chrono::DateTime<chrono::Utc>>()?;
+    let tenant_name = match first_log["tenant_name"].as_str() {
+        Some(tenant) => tenant,
+        None => {
+            error!("Tenant name missing in the first log entry.");
+            return Err("Missing tenant name".into());
+        }
+    };
+    info!("Tenant name: {}", tenant_name);
+
+    // Generate the current UTC datetime instead of using the user-provided datetime
+    let datetime = chrono::Utc::now();
     let formatted_datetime = datetime.format("%Y%m%d_%H%M").to_string();
+    info!("Generated datetime: {}", formatted_datetime);
 
     let file_name = format!("{}_{}.parquet", tenant_name, formatted_datetime);
+    info!("Generated file name: {}", file_name);
 
     // Build the schema based on the first log entry
     let schema = build_schema(first_log);
+    info!("Schema built successfully.");
 
     // Convert each log entry to Arrow arrays
     let mut arrays = vec![];
     for log_entry in log_entries {
-        let array = log_entry_to_arrays(log_entry, &schema)?;
-        arrays.extend(array);
+        match log_entry_to_arrays(log_entry, &schema) {
+            Ok(array) => {
+                info!("Converted log entry to arrays.");
+                arrays.extend(array);
+            }
+            Err(e) => {
+                error!("Failed to convert log entry to arrays: {}", e);
+                return Err(e.into());
+            }
+        }
     }
 
     // Write to Parquet file
-    write_parquet_file(&file_name, Arc::new(schema), arrays)?;
+    match write_parquet_file(&file_name, Arc::new(schema), arrays) {
+        Ok(_) => info!("Parquet file written successfully."),
+        Err(e) => {
+            error!("Failed to write Parquet file: {}", e);
+            return Err(e.into());
+        }
+    }
 
+    info!("Log processing completed successfully.");
     Ok(file_name)
 }
-

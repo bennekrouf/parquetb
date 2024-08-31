@@ -4,8 +4,7 @@ grpcurl -d @ \
     -proto parquetb.proto \
     localhost:50056 parquetb.ParquetbService/StreamLogs <<EOM
 {
-  "datetime": "2024-08-30T12:00:00Z",
-  "tenant_name": "example_tenant",
+  "tenant_name": "gibro",
   "item_id": "item123",
   "status": "active",
   "qty": 10.5,

@@ -5,18 +5,17 @@ use serde_json::Value;
 use crate::utils::infer_metadata_schema::infer_metadata_schema;
 
 pub fn build_schema(log_entry: &Value) -> Schema {
-    // Fixed fields with datetime and minute fields
     let mut fields = vec![
-        Field::new(
-            "datetime",
-            DataType::Timestamp(TimeUnit::Nanosecond, None),
-            false,
-        ),
-        Field::new(
-            "minute",
-            DataType::Timestamp(TimeUnit::Nanosecond, None),
-            false,
-        ),
+        // Field::new(
+        //     "datetime",
+        //     DataType::Timestamp(TimeUnit::Nanosecond, None),
+        //     false,
+        // ),
+        // Field::new(
+        //     "minute",
+        //     DataType::Timestamp(TimeUnit::Nanosecond, None),
+        //     false,
+        // ),
         Field::new("tenant_name", DataType::Utf8, false),
         Field::new("item_id", DataType::Utf8, false),
         Field::new("status", DataType::Utf8, false),
