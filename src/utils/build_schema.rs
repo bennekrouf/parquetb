@@ -1,22 +1,11 @@
 
-use arrow::datatypes::{DataType, Field, Schema, TimeUnit};
+use arrow::datatypes::{DataType, Field, Schema};
 use serde_json::Value;
 
 use crate::utils::infer_metadata_schema::infer_metadata_schema;
 
 pub fn build_schema(log_entry: &Value) -> Schema {
     let mut fields = vec![
-        // Field::new(
-        //     "datetime",
-        //     DataType::Timestamp(TimeUnit::Nanosecond, None),
-        //     false,
-        // ),
-        // Field::new(
-        //     "minute",
-        //     DataType::Timestamp(TimeUnit::Nanosecond, None),
-        //     false,
-        // ),
-        Field::new("tenant_name", DataType::Utf8, false),
         Field::new("item_id", DataType::Utf8, false),
         Field::new("status", DataType::Utf8, false),
         Field::new("qty", DataType::Float64, false),
