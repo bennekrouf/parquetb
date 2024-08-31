@@ -1,4 +1,4 @@
-mod log_service;
+mod parquetb_service;
 mod utils;
 mod client;
 
@@ -6,8 +6,8 @@ use tonic::transport::Server;
 use std::env;
 use tonic_reflection::server::Builder;
 
-use crate::log_service::log::log_service_server::LogServiceServer;
-use crate::log_service::MyLogService;
+use crate::parquetb_service::parquetb::parquetb_service_server::ParquetbServiceServer;
+use crate::parquetb_service::MyParquetbService;
 use dotenvy::from_path;
 use std::path::Path;
 use tracing_subscriber;
@@ -24,18 +24,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let port = env::var("LOG_PORT").expect("Missing 'port' environment variable");
     let addr = format!("{}:{}", ip, port).parse().unwrap();
 
-    let log_service = MyLogService::default();
+    let parquetb_service = MyParquetbService::default();
 
-    println!("LogService server listening on {}", addr);
+    println!("ParquetbService server listening on {}", addr);
 
-    let descriptor_set = include_bytes!(concat!(env!("OUT_DIR"), "/log_descriptor.bin"));
+    let descriptor_set = include_bytes!(concat!(env!("OUT_DIR"), "/parquetb_descriptor.bin"));
     let reflection_service = Builder::configure()
         .register_encoded_file_descriptor_set(descriptor_set)
         .build_v1()?;
 
     // Build and start the gRPC server
     Server::builder()
-        .add_service(LogServiceServer::new(log_service))
+        .add_service(ParquetbServiceServer::new(parquetb_service))
         .add_service(reflection_service)
         .serve(addr)
         .await?;

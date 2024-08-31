@@ -1075,27 +1075,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
 
 [[package]]
-name = "log-creator"
-version = "0.1.0"
-dependencies = [
- "arrow",
- "chrono",
- "dotenvy",
- "futures",
- "futures-util",
- "http",
- "parquet",
- "prost",
- "serde_json",
- "tokio",
- "tonic",
- "tonic-build",
- "tonic-reflection",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
 name = "lz4_flex"
 version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1326,6 +1305,27 @@ dependencies = [
  "twox-hash",
  "zstd",
  "zstd-sys",
+]
+
+[[package]]
+name = "parquetb"
+version = "0.1.0"
+dependencies = [
+ "arrow",
+ "chrono",
+ "dotenvy",
+ "futures",
+ "futures-util",
+ "http",
+ "parquet",
+ "prost",
+ "serde_json",
+ "tokio",
+ "tonic",
+ "tonic-build",
+ "tonic-reflection",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

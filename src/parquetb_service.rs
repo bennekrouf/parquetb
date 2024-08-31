@@ -4,12 +4,12 @@ use tonic::async_trait;
 use futures::StreamExt;
 use std::sync::Arc;
 
-pub mod log {
-    tonic::include_proto!("log");
+pub mod parquetb {
+    tonic::include_proto!("parquetb");
 }
 
-use log::log_service_server::LogService;
-use log::{LogEntry, UploadResponse};
+use parquetb::parquetb_service_server::ParquetbService;
+use parquetb::{LogEntry, UploadResponse};
 
 use crate::utils::{build_schema::build_schema, log_entry_to_arrays::log_entry_to_arrays, write_parquet_file::write_parquet_file};
 use crate::client::send_log::send_log;
@@ -18,10 +18,10 @@ use serde_json::json;
 use std::error::Error;
 
 #[derive(Debug, Default)]
-pub struct MyLogService;
+pub struct MyParquetbService;
 
 #[async_trait]
-impl LogService for MyLogService {
+impl ParquetbService for MyParquetbService {
     async fn stream_logs(
         &self,
         request: Request<Streaming<LogEntry>>,
@@ -61,7 +61,7 @@ impl LogService for MyLogService {
 
         // Call send_log to upload the Parquet file
         if let Err(e) = send_log(&file_name, &log_entries[0]["tenant_name"].as_str().unwrap(), &file_name).await {
-            return Err(Status::internal(format!("Error sending log file: {}", e)));
+            return Err(Status::internal(format!("Error sending parquetb file: {}", e)));
         }
 
         // Return a successful response

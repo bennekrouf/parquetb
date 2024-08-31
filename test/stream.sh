@@ -1,8 +1,8 @@
 grpcurl -d @ \
     -plaintext \
     -import-path ./proto-definitions \
-    -proto log.proto \
-    localhost:50056 log.LogService/StreamLogs <<EOM
+    -proto parquetb.proto \
+    localhost:50056 parquetb.ParquetbService/StreamLogs <<EOM
 {
   "datetime": "2024-08-30T12:00:00Z",
   "tenant_name": "example_tenant",

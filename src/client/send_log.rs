@@ -2,14 +2,11 @@ pub mod minioc {
     tonic::include_proto!("minioc");
 }
 use tonic::{Request, metadata::MetadataValue};
-use std::str::FromStr;
-use tracing::{info, error};
 use tonic::transport::Endpoint;
-// use tonic::Request;
-// use tonic::Streaming;
-// use tonic::transport::Channel;
+
+use tracing::{info, error};
 use minioc::minioc_service_client::MiniocServiceClient;
-use minioc::{FileChunk, UploadRequest};
+use minioc::FileChunk;
 use tokio::sync::mpsc;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
@@ -17,6 +14,8 @@ use dotenvy::from_path;
 use std::env;
 use std::path::Path;
 use std::error::Error;
+use std::str::FromStr;
+
 use futures_util::Stream; // Add this import
 // use futures_util::stream::StreamExt; // Add this import
 use http::Uri;

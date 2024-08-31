@@ -7,14 +7,14 @@ fn main() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
 
     // Construct the path to the descriptor set file
-    let descriptor_path = out_dir.join("log_descriptor.bin");
+    let descriptor_path = out_dir.join("parquetb_descriptor.bin");
 
-    // Configure and compile the proto files (log.proto and minioc.proto)
+    // Configure and compile the proto files (parquetb.proto and minioc.proto)
     tonic_build::configure()
         .file_descriptor_set_path(descriptor_path)
         .compile(
             &[
-                "proto-definitions/log.proto",  // Path to your log.proto
+                "proto-definitions/parquetb.proto",  // Path to your parquetb.proto
                 "proto-definitions/minioc.proto" // Path to your minioc.proto
             ], 
             &["proto"]

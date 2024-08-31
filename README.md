@@ -1,5 +1,5 @@
 
-# Log Streaming gRPC Service
+# Parquet builder gRPC Service
 
 ## Overview
 
