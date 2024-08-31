@@ -11,14 +11,14 @@ futures = "0.3.30"
 futures-util = "0.3.30"
 http = "1.1.0"
 parquet = "52.2.0"
-prost = "0.13.1"
+prost = "0.13.2"
 serde_json = "1.0.127"
 tokio = { version = "1.39.3", features = ["full"] }
 tonic = "0.12.2"
 tonic-reflection = "0.12.2"
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
-messenger_client = { git = "https://192.95.30.129/backend/messengerc.git" }
+messengerc = { git = "https://github.com/bennekrouf/messengerc.git" }
 
 [build-dependencies]
 tonic-build = "0.12.2"
