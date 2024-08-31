@@ -21,22 +21,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     from_path(custom_env_path).expect("Failed to load environment variables from custom path");
 
     // Retrieve the necessary values from environment variables
-    let ip = env::var("LOG_DOMAIN").expect("Missing 'domain' environment variable");
-    let port = env::var("LOG_PORT").expect("Missing 'port' environment variable");
+    let ip = env::var("PARQUETB_DOMAIN").expect("Missing 'domain' environment variable");
+    let port = env::var("PARQUETB_PORT").expect("Missing 'port' environment variable");
     let addr = format!("{}:{}", ip, port).parse().unwrap();
 
     // Create and initialize the gRPC client for the messaging service
     let messenger_client = connect_to_messenger_service().await
         .ok_or("Failed to connect to messenger service")?;
+    let tag = env::var("PARQUETB_PORT").expect("Missing 'tag' environment variable");
 
     let messaging_service = MessagingService::new(
         Arc::new(Mutex::new(messenger_client)),
-        "parquetb".to_string(),
+        tag.clone(),
     );
 
     // Publish a message through the messaging service
-    let message = format!("ParquetbService server listening on {}", addr);
-    if let Err(e) = messaging_service.publish_message(message.clone(), None).await {
+    let message = format!("Parquetb listening on {}", addr);
+    if let Err(e) = messaging_service.publish_message(message.clone(), Some(vec![tag])).await {
         eprintln!("Failed to publish message: {:?}", e);
     }
 
