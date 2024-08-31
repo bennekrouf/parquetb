@@ -1,53 +1,44 @@
-
-// use chrono::{DateTime, Utc};
-use serde_json::Value;
-use std::error::Error;
-use std::sync::Arc;
-
+mod log_service;
 mod utils;
+mod client;
 
-use chrono::{DateTime, Utc}; // Ensure chrono is imported for datetime parsing
-use crate::utils::build_schema::build_schema;
-use crate::utils::log_entry_to_arrays::log_entry_to_arrays;
-use crate::utils::write_parquet_file::write_parquet_file;
+use tonic::transport::Server;
+use std::env;
+use tonic_reflection::server::Builder;
 
-fn main() -> Result<(), Box<dyn Error>> {
-    // Example log entry
-    let log = r#"{
-        "datetime": "2024-08-26T10:15:42Z",
-        "tenant_name": "TenantA",
-        "item_id": "Item123",
-        "status": "SUCCESS",
-        "qty": 100.5,
-        "metadata": {
-        "toto": 2
-        }
-    }"#;
+use crate::log_service::log::log_service_server::LogServiceServer;
+use crate::log_service::MyLogService;
+use dotenvy::from_path;
+use std::path::Path;
+use tracing_subscriber;
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Initialize tracing or logging
+    tracing_subscriber::fmt::init();
+    // Load the environment variables from a custom file
+    let custom_env_path = Path::new("proto-definitions/.service");
+    from_path(custom_env_path).expect("Failed to load environment variables from custom path");
 
-    // Parse the log entry into a serde_json::Value
-    let log_entry: Value = serde_json::from_str(log)?;
+    // Retrieve the necessary values from environment variables
+    let ip = env::var("LOG_DOMAIN").expect("Missing 'domain' environment variable");
+    let port = env::var("LOG_PORT").expect("Missing 'port' environment variable");
+    let addr = format!("{}:{}", ip, port).parse().unwrap();
 
-    // Extract tenant name
-    let tenant_name = log_entry["tenant_name"].as_str().unwrap();
+    let log_service = MyLogService::default();
 
-    // Extract and format datetime
-    let datetime_str = log_entry["datetime"].as_str().unwrap();
-    let datetime = datetime_str.parse::<DateTime<Utc>>()?;
-    let formatted_datetime = datetime.format("%Y%m%d_%H%M").to_string();
+    println!("LogService server listening on {}", addr);
 
-    // Generate the file name
-    let file_name = format!("{}_{}.parquet", tenant_name, formatted_datetime);
+    let descriptor_set = include_bytes!(concat!(env!("OUT_DIR"), "/log_descriptor.bin"));
+    let reflection_service = Builder::configure()
+        .register_encoded_file_descriptor_set(descriptor_set)
+        .build_v1()?;
 
-    // Build the schema
-    let schema = build_schema(&log_entry);
-
-    // Convert log entry to Arrow arrays
-    let arrays = log_entry_to_arrays(&log_entry, &schema)?;
-
-    // Write the Arrow arrays to a Parquet file with the generated file name
-    write_parquet_file(&file_name, Arc::new(schema), arrays)?;
-
-    println!("Parquet file '{}' created successfully.", file_name);
+    // Build and start the gRPC server
+    Server::builder()
+        .add_service(LogServiceServer::new(log_service))
+        .add_service(reflection_service)
+        .serve(addr)
+        .await?;
 
     Ok(())
 }
